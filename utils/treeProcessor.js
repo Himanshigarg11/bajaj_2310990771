@@ -114,7 +114,7 @@ for (let node of allNodes) {
   }
 }
 if (roots.length === 0 && allNodes.size > 0) {
-  const firstNode = [...allNodes][0];
+const firstNode = [...allNodes].sort()[0];
 
   const visited = new Set();
   const stack = new Set();
@@ -123,8 +123,8 @@ if (roots.length === 0 && allNodes.size > 0) {
     return {
       roots: [],
 
-      user_id: "yourname_ddmmyyyy",
-      email_id: "yourcollegeemail",
+      user_id: "himanshi_24062026",
+      email_id: "Himanshi0771.be23@chitkara.edu.in",
       college_roll_number: "2310990771",
 
       valid_edges,
@@ -136,7 +136,6 @@ if (roots.length === 0 && allNodes.size > 0) {
           root: firstNode,
           tree: {},
           has_cycle: true,
-          depth: 0
         }
       ],
 
@@ -150,8 +149,26 @@ if (roots.length === 0 && allNodes.size > 0) {
 }
 const hierarchies = [];
 let total_cycles = 0;
+const hierarchyNodes = new Set();
 
 for (const root of roots) {
+
+  const queue = [root];
+
+  while (queue.length) {
+    const current = queue.shift();
+
+    if (hierarchyNodes.has(current)) continue;
+
+    hierarchyNodes.add(current);
+
+    const children = graph[current] || [];
+
+    for (const child of children) {
+      queue.push(child);
+    }
+  }
+
   const visited = new Set();
   const stack = new Set();
 
@@ -160,31 +177,60 @@ for (const root of roots) {
   if (cycle) {
     total_cycles++;
 
-    hierarchies.push({
-      root,
-      tree: {},
-      has_cycle: true,
-      depth: 0
-    });
+  hierarchies.push({
+  root,
+  tree: {},
+  has_cycle: true
+});
 
     continue;
   }
 
-  hierarchies.push({
-    root,
-    tree: {
-      [root]: buildTree(root, graph)
-    },
-    depth: calculateDepth(root, graph),
-    has_cycle: false
-  });
+hierarchies.push({
+  root,
+  tree: {
+    [root]: buildTree(root, graph)
+  },
+  depth: calculateDepth(root, graph)
+});
 }
 let largest_tree_root = "";
+for (const node of allNodes) {
+
+  if (hierarchyNodes.has(node)) {
+    continue;
+  }
+
+  const visited = new Set();
+  const stack = new Set();
+
+  if (hasCycle(node, graph, visited, stack)) {
+
+    total_cycles++;
+
+    hierarchies.push({
+      root: node,
+      tree: {},
+      has_cycle: true
+    });
+
+    visited.forEach(n => hierarchyNodes.add(n));
+  }
+}
 
 let maxDepth = -1;
 
 for (const hierarchy of hierarchies) {
-  if (hierarchy.depth > maxDepth) {
+
+  if (hierarchy.depth === undefined) continue;
+
+  if (
+    hierarchy.depth > maxDepth ||
+    (
+      hierarchy.depth === maxDepth &&
+      hierarchy.root < largest_tree_root
+    )
+  ) {
     maxDepth = hierarchy.depth;
     largest_tree_root = hierarchy.root;
   }
@@ -196,7 +242,7 @@ const summary = {
 };
   return {
     roots,
-    user_id: "Himanshi Garg",
+    user_id: "himanshi_24062026",
     email_id: "Himanshi0771.be23@chitkara.edu.in",
     college_roll_number: "2310990771",
 
